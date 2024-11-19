@@ -1,0 +1,40 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { ReviewModel } from './review.model';
+import { Model, Types } from 'mongoose';
+import { CreateReviewDto } from './dto/create-review.dto';
+import { InjectModel } from '@nestjs/mongoose';
+
+@Injectable()
+export class ReviewService {
+	constructor(
+		@InjectModel(ReviewModel.name)
+		private readonly reviewModel: Model<ReviewModel>,
+	) {}
+
+	async create(dto: CreateReviewDto): Promise<ReviewModel> {
+		return this.reviewModel.create(dto);
+	}
+
+	async getById(id: string): Promise<ReviewModel | null> {
+		return this.reviewModel.findById(id).exec();
+	}
+
+	async findByProductId(productId: string): Promise<ReviewModel[]> {
+		return this.reviewModel
+			.find({ productId: new Types.ObjectId(productId) })
+			.exec();
+	}
+
+	async delete(id: string): Promise<ReviewModel | null> {
+		return this.reviewModel.findByIdAndDelete(id).exec();
+	}
+
+	async update(
+		id: string,
+		data: Partial<CreateReviewDto>,
+	): Promise<ReviewModel | null> {
+		return this.reviewModel
+			.findOneAndUpdate({ _id: id }, { $set: data }, { new: true })
+			.exec();
+	}
+}
