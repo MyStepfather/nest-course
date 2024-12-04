@@ -17,7 +17,6 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewService } from './review.service';
 import { REVIEW_NOT_FOUND } from './review.constants';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
-import { UserEmail } from '../decorators/user-email.decorator';
 
 @Controller('review')
 export class ReviewController {
@@ -33,17 +32,13 @@ export class ReviewController {
 
 	@Get(':id')
 	async get(@Param('id') id: string) {
-		await this.reviewService.getById(id);
+		return await this.reviewService.getById(id);
 	}
 
 	@UseGuards(JwtAuthGuard)
 	@Get('byProduct/:productId')
-	async getByProductId(
-		@Param('productId') productId: string,
-		@UserEmail() email: string,
-	) {
-		console.log(email);
-		await this.reviewService.findByProductId(productId);
+	async getByProductId(@Param('productId') productId: string) {
+		return await this.reviewService.findByProductId(productId);
 	}
 
 	@Delete(':id')
@@ -52,6 +47,7 @@ export class ReviewController {
 		if (!deletedDoc) {
 			throw new HttpException(REVIEW_NOT_FOUND, HttpStatus.NOT_FOUND);
 		}
+		return deletedDoc;
 	}
 
 	@Patch(':id')
@@ -62,5 +58,6 @@ export class ReviewController {
 		const updatedDoc = await this.reviewService.update(id, dto);
 		if (!updatedDoc)
 			throw new HttpException(REVIEW_NOT_FOUND, HttpStatus.NOT_FOUND);
+		return updatedDoc;
 	}
 }
